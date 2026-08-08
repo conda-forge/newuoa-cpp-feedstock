@@ -15,10 +15,6 @@ build:
   number: 1
   script:
     interpreter: brush
-    env:
-      CMAKE_GENERATOR: ${{ "NMake Makefiles JOM" if win }}
-      CMAKE_GENERATOR_PLATFORM: ${{ "" if win }}
-      CMAKE_GENERATOR_TOOLSET: ${{ "" if win }}
     content: |
       cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
       cmake --build build --parallel ${CPU_COUNT}
@@ -29,7 +25,7 @@ requirements:
     - ${{ compiler("c") }}
     - ${{ compiler("cxx") }}
     - ${{ stdlib("c") }}
-    - ${{ "jom" if win else "make" }}
+    - ${{ "make" if unix }}
     - brush
     - cmake
     - pkg-config
