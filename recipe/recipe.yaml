@@ -18,7 +18,7 @@ build:
     env:
       CMAKE_GENERATOR: ${{ "NMake Makefiles JOM" if win }}
       CMAKE_GENERATOR_PLATFORM: ${{ "" if win }}
-      CMAKE_GENERATOR_TOOLSET=: ${{ "" if win }}
+      CMAKE_GENERATOR_TOOLSET: ${{ "" if win }}
     content: |
       cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
       cmake --build build --parallel ${CPU_COUNT}
