@@ -15,10 +15,16 @@ build:
   number: 1
   script:
     interpreter: brush
-    content: |
-      cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
-      cmake --build build --parallel ${CPU_COUNT}
-      cmake --install build
+    content:
+      - cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
+      - if: unix
+        then:
+          - cmake --build build --parallel ${CPU_COUNT}
+          - cmake --install build --parallel ${CPU_COUNT}
+      - if: win
+        then:
+          - cmake --build build --config Release --parallel ${CPU_COUNT}
+          - cmake --install build --config Release --parallel ${CPU_COUNT}
 
 requirements:
   build:
