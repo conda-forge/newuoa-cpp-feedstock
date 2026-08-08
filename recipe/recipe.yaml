@@ -1,58 +1,47 @@
 context:
-  name: newuoa-cpp
   version: "0.1.2"
 
 package:
-  name: ${{ name }}
+  name: newuoa-cpp
   version: ${{ version }}
 
 source:
-  url: https://github.com/elsid/${{ name }}/archive/refs/tags/v${{ version }}.tar.gz
+  url: https://github.com/elsid/newuoa-cpp/archive/refs/tags/v${{ version }}.tar.gz
   sha256: 660274f2ab2188bdf096c0ed0eefa8e10fe563e440064bc4e48ce547a8ef90a4
   patches:
     - fix_dll_install.patch
 
 build:
-  number: 0
+  number: 1
   script:
-    - if: unix
-      then: |
-        set -exo pipefail
-        cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
-        cmake --build build --config Release --parallel ${CPU_COUNT}
-        cmake --install build
-      else: |
-        @echo on
-        cmake -S . -B build %CMAKE_ARGS% -DBUILD_SHARED_LIBS=ON
-        if errorlevel 1 exit 1
-        cmake --build build --config Release --parallel %CPU_COUNT%
-        if errorlevel 1 exit 1
-        dir build\Release
-        cmake --install build
-        if errorlevel 1 exit 1
+    interpreter: brush
+    env: 
+      CMAKE_GENERATOR: ${{ "NMake Makefiles JOM" if win }}
+    content: |
+      cmake -S . -B build ${CMAKE_ARGS} -DBUILD_SHARED_LIBS=ON
+      cmake --build build --parallel ${CPU_COUNT}
+      cmake --install build
 
 requirements:
   build:
     - ${{ compiler("c") }}
     - ${{ compiler("cxx") }}
     - ${{ stdlib("c") }}
+    - ${{ "jom" if win else "make" }}
+    - brush
     - cmake
-    - if: unix
-      then: make
     - pkg-config
   run_exports:
-    - ${{ pin_subpackage(name, upper_bound="x.x") }}
+    - ${{ pin_subpackage("newuoa-cpp", upper_bound="x.x") }}
 
 tests:
-  - script:
-      - if: unix
-        then:
-          - test -f ${PREFIX}/include/newuoa.h
-          - test -f ${PREFIX}/lib/libnewuoa${SHLIB_EXT}
-        else:
-          - if not exist "%LIBRARY_PREFIX%\include\newuoa.h" exit /b 1
-          - if not exist "%LIBRARY_PREFIX%\lib\newuoa.lib" exit /b 1
-          - if not exist "%LIBRARY_PREFIX%\bin\newuoa%SHLIB_EXT%" exit /b 1
+  - package_contents:
+      include:
+        - newuoa.h
+      lib:
+        - newuoa
+    strict:
+      true
 
 about:
   homepage: https://github.com/elsid/newuoa-cpp
